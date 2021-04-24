@@ -1,0 +1,36 @@
+---
+
+- name: Provision front-end-server.
+  hosts: default
+  become: true
+
+  tasks:
+
+    - name: Ensure Apache installed.
+      apt:
+        cache_valid_time: 0
+        name: 'apache2'
+        state: present
+    
+    - name: Ensure Apache service.
+      service:
+        name: apache2
+        enabled: yes
+        state: started
+
+    - name: Ensure index.html.
+      copy:
+        src: files/index.html
+        dest: /var/www/html/index.html
+        owner: root
+        group: root
+        mode: '0644'
+        force: yes
+      notify:
+        - restart apache
+
+  handlers:
+    - name: restart apache
+      service:
+        name: apache2
+        state: restarted
